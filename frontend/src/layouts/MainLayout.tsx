@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import { useThemeStore } from "../store/themeStore";

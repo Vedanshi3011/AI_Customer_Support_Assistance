@@ -11,7 +11,6 @@ import {
   Ticket,
   Lightbulb,
   BarChart3,
-  CheckCircle2,
   BookOpen,
   Zap,
 } from "lucide-react";
