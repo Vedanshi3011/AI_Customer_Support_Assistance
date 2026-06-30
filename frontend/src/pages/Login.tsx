@@ -32,8 +32,8 @@ export default function Login() {
 
   return (
     <div
-      className={`
-        min-h-screen flex overflow-hidden relative
+  className={`
+    min-h-screen flex flex-col lg:flex-row relative overflow-x-hidden
         transition-colors duration-300
         ${
           darkMode
@@ -79,7 +79,7 @@ export default function Login() {
       <button
         onClick={toggleTheme}
         className="
-          absolute top-6 right-6 z-50
+          fixed top-4 right-4 sm:top-6 sm:right-6 z-50
           p-3 rounded-xl
           bg-white dark:bg-slate-900
           border border-slate-200 dark:border-slate-700
@@ -107,7 +107,7 @@ export default function Login() {
           relative z-10
           flex-col
           justify-center
-          px-16
+          px-8 xl:px-16
         "
       >
         <div className="flex items-center gap-4 mb-8">
@@ -117,7 +117,7 @@ export default function Login() {
           </div>
 
           <div>
-            <h1 className="text-4xl font-bold">
+            <h1 className="text-3xl xl:text-4xl font-bold">
               AI Support
             </h1>
 
@@ -128,11 +128,11 @@ export default function Login() {
 
         </div>
 
-        <h2 className="text-5xl font-bold leading-tight mb-6">
+        <h2 className="text-3xl xl:text-5xl font-bold leading-tight mb-6">
           Intelligent Customer Support
         </h2>
 
-        <p className="text-lg text-blue-100 leading-8 max-w-xl">
+        <p className="text-base xl:text-lg text-blue-100 leading-8 max-w-xl">
           AI-powered customer support built with
           Retrieval-Augmented Generation, Vector Search,
           Knowledge Bases and Large Language Models.
@@ -140,12 +140,12 @@ export default function Login() {
 
         <div className="mt-12 space-y-4">
 
-          <div className="bg-white/10 backdrop-blur p-5 rounded-xl flex items-center gap-4 hover:translate-x-2 transition-all">
+          <div className="bg-white/10 backdrop-blur p-4 xl:p-5 rounded-xl flex items-center gap-4 hover:translate-x-2 transition-all">
             <Brain size={24} />
             <span>AI Powered Responses</span>
           </div>
 
-          <div className="bg-white/10 backdrop-blur p-5 rounded-xl flex items-center gap-4 hover:translate-x-2 transition-all">
+          <div className="bg-white/10 backdrop-blur p-4 xl:p-5 rounded-xl flex items-center gap-4 hover:translate-x-2 transition-all">
             <Database size={24} />
             <span>Knowledge Base Integration</span>
           </div>
@@ -159,15 +159,15 @@ export default function Login() {
       </div>
 
       {/* Right Section */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 relative z-10">
+      <div className="w-full lg:w-1/2 flex items-center justify-center px-4 sm:px-6 py-8 lg:py-0 relative z-10">
 
         <div
           className={`
-            w-full max-w-md
+            w-full max-w-md w-full
             rounded-3xl
             shadow-2xl
             border
-            p-8
+            p-6 sm:p-8
             backdrop-blur-xl
             transition-all duration-300
             ${
@@ -180,11 +180,11 @@ export default function Login() {
           {/* Logo */}
           <div className="text-center mb-8">
 
-            <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-white">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-white">
               <Bot size={30} />
             </div>
 
-            <h2 className="text-3xl font-bold">
+            <h2 className="text-2xl sm:text-3xl font-bold">
               {isSignup
                 ? "Create Account"
                 : "Welcome Back"}
@@ -198,7 +198,7 @@ export default function Login() {
 
           </div>
 
-          <div className="space-y-5">
+          <div className="space-y-4 sm:space-y-5">
 
             {/* Full Name */}
             {isSignup && (
@@ -335,7 +335,7 @@ export default function Login() {
             )}
 
             {!isSignup && (
-              <div className="flex justify-between text-sm">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-0 justify-between text-sm">
 
                 <label className="flex items-center gap-2 text-slate-500">
 
@@ -360,7 +360,7 @@ export default function Login() {
                 bg-blue-600
                 hover:bg-blue-700
                 text-white
-                py-3
+                py-3 sm:py-3
                 rounded-xl
                 font-semibold
                 flex items-center
@@ -418,7 +418,7 @@ export default function Login() {
 
           </div>
 
-          <div className="mt-8 text-center text-sm text-slate-500">
+          <div className="mt-6 sm:mt-8 text-center text-sm text-slate-500">
             AI Customer Support Assistant © 2026
           </div>
 

@@ -13,18 +13,36 @@ import {
   User,
   LogOut,
   Sparkles,
+  Menu,
+  X,
 } from "lucide-react";
 
 import { useThemeStore } from "../store/themeStore";
 
-export default function Navbar() {
+interface NavbarProps {
+  mobileMenuOpen: boolean;
+  setMobileMenuOpen: React.Dispatch<
+    React.SetStateAction<boolean>
+  >;
+}
+
+export default function Navbar({
+  mobileMenuOpen,
+  setMobileMenuOpen,
+}: NavbarProps) {
   const navigate = useNavigate();
 
-  const [showMenu, setShowMenu] = useState(false);
-  const [showNotifications, setShowNotifications] =
+  const [showMenu, setShowMenu] =
     useState(false);
 
-  const menuRef = useRef<HTMLDivElement>(null);
+  const [
+    showNotifications,
+    setShowNotifications,
+  ] = useState(false);
+
+  const menuRef =
+    useRef<HTMLDivElement>(null);
+
   const notificationRef =
     useRef<HTMLDivElement>(null);
 
@@ -86,122 +104,149 @@ export default function Navbar() {
     <header
       className={`
         sticky top-0 z-40
-        backdrop-blur-lg
+        backdrop-blur-xl
         border-b
-        px-4 md:px-6 py-4
         transition-all duration-300
-        ${darkMode
-          ? "bg-slate-900/90 border-slate-700"
-          : "bg-white/90 border-slate-200"
+        ${
+          darkMode
+            ? "bg-slate-900/95 border-slate-700"
+            : "bg-white/95 border-slate-200"
         }
       `}
     >
-      <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
+      <div className="flex items-center justify-between px-4 md:px-6 py-4">
 
-        {/* Left Section */}
-        <div className="flex items-center gap-4 w-full lg:w-auto">
+        {/* LEFT SECTION */}
+
+        <div className="flex items-center gap-4 flex-1">
+
+          {/* Mobile Menu Button */}
+
+          <button
+            onClick={() =>
+              setMobileMenuOpen(
+                !mobileMenuOpen
+              )
+            }
+            className={`
+              lg:hidden
+              p-2
+              rounded-xl
+              transition
+              ${
+                darkMode
+                  ? "hover:bg-slate-800"
+                  : "hover:bg-slate-100"
+              }
+            `}
+          >
+            {mobileMenuOpen ? (
+              <X size={22} />
+            ) : (
+              <Menu size={22} />
+            )}
+          </button>
 
           {/* Search */}
-          <div className="relative w-full lg:w-96">
+
+          <div className="relative flex-1 max-w-xl">
 
             <Search
               size={18}
-              className="absolute left-3 top-3 text-slate-400"
+              className="
+                absolute
+                left-3
+                top-1/2
+                -translate-y-1/2
+                text-slate-400
+              "
             />
 
             <input
               type="text"
               placeholder="Search..."
               className={`
-                w-full rounded-xl
-                pl-10 pr-20 py-2.5
+                w-full
+                rounded-xl
                 border
+                pl-10
+                pr-4
+                py-2.5
                 focus:outline-none
                 focus:ring-2
                 focus:ring-blue-500
                 transition
-                ${darkMode
-                  ? "bg-slate-800 border-slate-700 text-white"
-                  : "bg-white border-slate-300 text-slate-900"
+                ${
+                  darkMode
+                    ? "bg-slate-800 border-slate-700 text-white"
+                    : "bg-white border-slate-300 text-slate-900"
                 }
               `}
             />
 
-            <span
-              className="
-                absolute right-3 top-2.5
-                text-xs
-                bg-slate-200 dark:bg-slate-700
-                px-2 py-1 rounded
-                text-slate-500
-              "
-            >
-              Ctrl K
-            </span>
-
           </div>
 
           {/* AI Status */}
+
           <div
             className="
-              hidden xl:flex
-              items-center gap-2
-              px-4 py-2
+              hidden
+              xl:flex
+              items-center
+              gap-2
+              px-4
+              py-2
               rounded-xl
               bg-green-100
-              dark:bg-green-900/30
+              dark:bg-green-900/20
               text-green-700
               dark:text-green-400
             "
           >
-            <div className="relative">
-
-              <Bot size={18} />
-
-              <span
-                className="
-                  absolute -top-1 -right-1
-                  h-2 w-2
-                  rounded-full
-                  bg-green-500
-                  animate-ping
-                "
-              />
-
-            </div>
+            <Bot size={18} />
 
             <span className="font-medium text-sm">
               AI Online
             </span>
 
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+
           </div>
 
         </div>
 
-        {/* Right Section */}
-        <div className="flex items-center gap-4">
+        {/* RIGHT SECTION */}
+
+        <div className="flex items-center gap-2 md:gap-4">
 
           {/* Date */}
+
           <div
             className={`
-              hidden md:block text-sm
-              ${darkMode
-                ? "text-slate-400"
-                : "text-slate-500"
+              hidden lg:block
+              text-sm
+              ${
+                darkMode
+                  ? "text-slate-400"
+                  : "text-slate-500"
               }
             `}
           >
             {today}
           </div>
 
-          {/* Theme Toggle */}
+          {/* Theme */}
+
           <button
             onClick={toggleTheme}
             className={`
-              p-2.5 rounded-xl transition
-              ${darkMode
-                ? "hover:bg-slate-800"
-                : "hover:bg-slate-100"
+              p-2.5
+              rounded-xl
+              transition
+              ${
+                darkMode
+                  ? "hover:bg-slate-800"
+                  : "hover:bg-slate-100"
               }
             `}
           >
@@ -213,6 +258,7 @@ export default function Navbar() {
           </button>
 
           {/* Notifications */}
+
           <div
             className="relative"
             ref={notificationRef}
@@ -224,70 +270,111 @@ export default function Navbar() {
                 )
               }
               className={`
-                p-2.5 rounded-xl transition
-                ${darkMode
-                  ? "hover:bg-slate-800"
-                  : "hover:bg-slate-100"
+                relative
+                p-2.5
+                rounded-xl
+                transition
+                ${
+                  darkMode
+                    ? "hover:bg-slate-800"
+                    : "hover:bg-slate-100"
                 }
               `}
             >
-              <Bell size={22} />
+              <Bell size={21} />
 
               <span
                 className="
-                  absolute top-1 right-1
-                  w-4 h-4
+                  absolute
+                  top-1
+                  right-1
+                  w-4
+                  h-4
+                  rounded-full
                   bg-red-500
                   text-white
                   text-[10px]
-                  rounded-full
-                  flex items-center justify-center
+                  flex
+                  items-center
+                  justify-center
                 "
               >
                 3
               </span>
-
             </button>
-
-            {showNotifications && (
+                        {showNotifications && (
               <div
                 className={`
-                  absolute right-0 mt-3
-                  w-72 rounded-2xl
-                  shadow-xl border
+                  absolute
+                  right-0
+                  mt-3
+                  w-80
+                  rounded-2xl
+                  border
+                  shadow-2xl
                   overflow-hidden
                   z-50
-                  ${darkMode
-                    ? "bg-slate-800 border-slate-700"
-                    : "bg-white border-slate-200"
+                  ${
+                    darkMode
+                      ? "bg-slate-800 border-slate-700"
+                      : "bg-white border-slate-200"
                   }
                 `}
               >
-                <div className="p-4 font-semibold border-b dark:border-slate-700">
+                <div
+                  className="
+                    px-5
+                    py-4
+                    font-semibold
+                    border-b
+                    dark:border-slate-700
+                  "
+                >
                   Notifications
                 </div>
 
-                {notifications.map(
-                  (item, index) => (
-                    <div
-                      key={index}
-                      className="
-                        px-4 py-3
-                        text-sm
-                        cursor-pointer
-                        hover:bg-slate-100
-                        dark:hover:bg-slate-700
-                      "
-                    >
-                      {item}
-                    </div>
-                  )
-                )}
+                {notifications.map((item, index) => (
+                  <button
+                    key={index}
+                    className="
+                      w-full
+                      text-left
+                      px-5
+                      py-4
+                      text-sm
+                      transition
+                      hover:bg-slate-100
+                      dark:hover:bg-slate-700
+                    "
+                  >
+                    {item}
+                  </button>
+                ))}
+
+                <div
+                  className="
+                    border-t
+                    dark:border-slate-700
+                    px-5
+                    py-3
+                  "
+                >
+                  <button
+                    className="
+                      text-blue-600
+                      text-sm
+                      font-medium
+                    "
+                  >
+                    View all notifications
+                  </button>
+                </div>
               </div>
             )}
           </div>
 
           {/* User Menu */}
+
           <div
             className="relative"
             ref={menuRef}
@@ -296,20 +383,30 @@ export default function Navbar() {
               onClick={() =>
                 setShowMenu(!showMenu)
               }
-              className="flex items-center gap-2"
+              className="
+                flex
+                items-center
+                gap-3
+                rounded-xl
+                px-2
+                py-1.5
+                transition-all
+                hover:bg-slate-100
+                dark:hover:bg-slate-800
+              "
             >
               <UserCircle2
-                size={36}
-                className="text-blue-500"
+                size={38}
+                className="text-blue-500 shrink-0"
               />
 
               <div className="hidden md:block text-left">
-
                 <p
-                  className={`font-medium ${darkMode
+                  className={`font-semibold ${
+                    darkMode
                       ? "text-white"
                       : "text-slate-800"
-                    }`}
+                  }`}
                 >
                   Admin User
                 </p>
@@ -317,97 +414,137 @@ export default function Navbar() {
                 <p className="text-xs text-slate-500">
                   Administrator
                 </p>
-
               </div>
 
-              <ChevronDown size={16} />
-
+              <ChevronDown
+                size={18}
+                className={`
+                  transition-transform
+                  duration-300
+                  ${
+                    showMenu
+                      ? "rotate-180"
+                      : ""
+                  }
+                `}
+              />
             </button>
 
             {showMenu && (
               <div
                 className={`
-                  absolute right-0 mt-3
-                  w-56 rounded-2xl
-                  shadow-xl border
+                  absolute
+                  right-0
+                  mt-3
+                  w-64
+                  rounded-2xl
+                  border
+                  shadow-2xl
                   overflow-hidden
                   z-50
-                  ${darkMode
-                    ? "bg-slate-800 border-slate-700"
-                    : "bg-white border-slate-200"
+                  ${
+                    darkMode
+                      ? "bg-slate-800 border-slate-700"
+                      : "bg-white border-slate-200"
                   }
                 `}
               >
-                <button
-                  onClick={() =>
-                    navigate("/profile")
-                  }
+                                <button
+                  onClick={() => {
+                    navigate("/profile");
+                    setShowMenu(false);
+                  }}
                   className="
-                    w-full flex items-center gap-3
-                    px-4 py-3
+                    w-full
+                    flex
+                    items-center
+                    gap-3
+                    px-5
+                    py-3
+                    transition
                     hover:bg-slate-100
                     dark:hover:bg-slate-700
                   "
                 >
                   <User size={18} />
-                  Profile
+                  <span>Profile</span>
                 </button>
 
                 <button
-                  onClick={() =>
-                    navigate("/settings")
-                  }
+                  onClick={() => {
+                    navigate("/settings");
+                    setShowMenu(false);
+                  }}
                   className="
-                    w-full flex items-center gap-3
-                    px-4 py-3
+                    w-full
+                    flex
+                    items-center
+                    gap-3
+                    px-5
+                    py-3
+                    transition
                     hover:bg-slate-100
                     dark:hover:bg-slate-700
                   "
                 >
                   <Settings size={18} />
-                  Settings
+                  <span>Settings</span>
                 </button>
 
-                {/* AI Preferences */}
                 <button
                   onClick={() => {
                     navigate("/ai-preferences");
                     setShowMenu(false);
                   }}
                   className="
-                    w-full flex items-center gap-3
-                    px-4 py-3
+                    w-full
+                    flex
+                    items-center
+                    gap-3
+                    px-5
+                    py-3
+                    transition
                     hover:bg-slate-100
                     dark:hover:bg-slate-700
-                    transition
                   "
                 >
                   <Sparkles size={18} />
-                  AI Preferences
+                  <span>AI Preferences</span>
                 </button>
 
                 <div className="border-t dark:border-slate-700" />
 
                 <button
-                  onClick={() => navigate("/")}
+                  onClick={() => {
+                    navigate("/");
+                    setShowMenu(false);
+                  }}
                   className="
-                    w-full flex items-center gap-3
-                    px-4 py-3
+                    w-full
+                    flex
+                    items-center
+                    gap-3
+                    px-5
+                    py-3
                     text-red-500
+                    transition
                     hover:bg-red-50
                     dark:hover:bg-red-900/20
                   "
                 >
                   <LogOut size={18} />
-                  Logout
+                  <span>Logout</span>
                 </button>
+
               </div>
             )}
+
           </div>
 
         </div>
 
       </div>
+
     </header>
   );
 }
