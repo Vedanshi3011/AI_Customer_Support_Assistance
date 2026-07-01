@@ -1,59 +1,195 @@
 import { useState, useRef, useEffect } from "react";
+import EmojiPicker from "emoji-picker-react";
+
+import { motion, AnimatePresence } from "framer-motion";
 
 import MainLayout from "../layouts/MainLayout";
 import ChatBubble from "../components/ChatBubble";
 import TypingIndicator from "../components/TypingIndicator";
 
 import {
-  MessageSquare,
-  Trash2,
-  Send,
   Bot,
-  Clock3,
+  Send,
   Menu,
   X,
+  Trash2,
+  Clock3,
+  MessageSquare,
+  Paperclip,
+  Smile,
+  Mic,
 } from "lucide-react";
 
+interface ChatMessage {
+  role: "user" | "assistant";
+  message: string;
+}
+
 export default function Chat() {
-  const [messages, setMessages] = useState([
-    {
-      role: "assistant",
-      message:
-        "Hello! I'm your AI Customer Support Assistant. Ask me anything from the company knowledge base.",
-    },
-  ]);
+
+  /* ===========================
+      States
+  =========================== */
+
+  const [messages, setMessages] =
+    useState<ChatMessage[]>([
+      {
+        role: "assistant",
+        message:
+          "Hello! 👋 I'm your AI Customer Support Assistant. Ask me anything from the company knowledge base.",
+      },
+    ]);
 
   const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const [showSidebar, setShowSidebar] = useState(false);
+  const [loading, setLoading] =
+    useState(false);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [streamingMessage, setStreamingMessage] =
+    useState("");
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({
-      behavior: "smooth",
-    });
-  }, [messages, loading]);
+  const [showSidebar, setShowSidebar] =
+    useState(false);
 
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height =
-        textareaRef.current.scrollHeight + "px";
-    }
-  }, [input]);
+  const [showEmojiPicker, setShowEmojiPicker] =
+    useState(false);
+
+  const [attachedFile, setAttachedFile] =
+    useState<File | null>(null);
+
+  const [showSuggestions, setShowSuggestions] =
+    useState(true);
+
+  /* ===========================
+      Refs
+  =========================== */
+
+  const messagesEndRef =
+    useRef<HTMLDivElement>(null);
+
+  const textareaRef =
+    useRef<HTMLTextAreaElement>(null);
+
+  const fileInputRef =
+    useRef<HTMLInputElement>(null);
+
+  const emojiRef =
+    useRef<HTMLDivElement>(null);
+
+  /* ===========================
+      Suggested Questions
+  =========================== */
 
   const suggestions = [
     "What is the company refund policy?",
     "How do I reset my password?",
     "Explain the onboarding process",
     "Where can I contact support?",
+    "Tell me about employee benefits",
+    "Explain leave policy",
   ];
 
+  /* ===========================
+      Auto Scroll
+  =========================== */
+
+  useEffect(() => {
+
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+
+  }, [
+    messages,
+    streamingMessage,
+    loading,
+  ]);
+
+  /* ===========================
+      Auto Expand Textarea
+  =========================== */
+
+  useEffect(() => {
+
+    if (!textareaRef.current) return;
+
+    textareaRef.current.style.height =
+      "auto";
+
+    textareaRef.current.style.height =
+      textareaRef.current.scrollHeight + "px";
+
+  }, [input]);
+
+  /* ===========================
+      handle click emoji picker
+  =========================== */
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (
+        emojiRef.current &&
+        !emojiRef.current.contains(e.target as Node)
+      ) {
+        setShowEmojiPicker(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClick);
+
+    return () =>
+      document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  /* ===========================
+      Fake AI Streaming
+  =========================== */
+
+  const streamAIResponse = (
+    text: string
+  ) => {
+
+    let index = 0;
+
+    setStreamingMessage("");
+
+    const interval = setInterval(() => {
+
+      index++;
+
+      setStreamingMessage(
+        text.slice(0, index)
+      );
+
+      if (index >= text.length) {
+
+        clearInterval(interval);
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            message: text,
+          },
+        ]);
+
+        setStreamingMessage("");
+
+        setLoading(false);
+
+      }
+
+    }, 18);
+
+  };
+
+  /* ===========================
+      Send Message
+  =========================== */
+
   const sendMessage = () => {
-    if (!input.trim() || loading) return;
+
+    if (!input.trim()) return;
 
     const userMessage = input;
 
@@ -66,23 +202,56 @@ export default function Chat() {
     ]);
 
     setInput("");
+
+    setAttachedFile(null);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+
     setLoading(true);
 
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          message:
-            "This response is currently mocked. Later it will come from the RAG backend using retrieved company knowledge and LLM processing.",
-        },
-      ]);
+    setShowSuggestions(false);
 
-      setLoading(false);
-    }, 1200);
+    setTimeout(() => {
+
+      streamAIResponse(
+        "This response is currently mocked. Later it will be generated by your RAG pipeline using retrieved company knowledge and an LLM. Streaming animation already simulates real AI typing."
+      );
+
+    }, 500);
+
   };
 
+  /* ===========================
+      handle file upload in attachment
+  =========================== */
+
+  const handleFileUpload = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "user",
+        message: `📎 Uploaded: ${file.name}`,
+      },
+    ]);
+
+    console.log(file);
+
+    e.target.value = "";
+  };
+  /* ===========================
+      Clear Chat
+  =========================== */
+
   const clearChat = () => {
+
     setMessages([
       {
         role: "assistant",
@@ -90,55 +259,145 @@ export default function Chat() {
           "Chat cleared successfully. How can I help you today?",
       },
     ]);
+
+    setShowSuggestions(true);
+
   };
 
   return (
+
     <MainLayout>
 
-      {/* Page Header */}
+      {/* =======================================
+              PAGE HEADER
+      ======================================== */}
 
-      <div className="mb-5">
+      <div className="mb-6">
 
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+        <h1
+          className="
+            text-3xl
+            lg:text-4xl
+            font-bold
+            text-slate-900
+            dark:text-white
+          "
+        >
           AI Customer Support Chat
         </h1>
 
-        <p className="mt-2 text-slate-500 dark:text-slate-400">
-          Chat with your AI assistant powered by Retrieval-Augmented Generation.
+        <p
+          className="
+            mt-2
+            text-slate-500
+            dark:text-slate-400
+          "
+        >
+          Chat with your AI assistant powered by
+          Retrieval-Augmented Generation.
         </p>
 
       </div>
 
-      {/* Main Layout */}
+      {/* =======================================
+              MAIN LAYOUT
+      ======================================== */}
 
-      <div className="relative flex gap-6 h-[calc(100vh-170px)]">
+      <div
+        className="
+          relative
 
-        {/* Mobile Overlay */}
+          flex
 
-        {showSidebar && (
-          <div
-            className="fixed inset-0 bg-black/40 z-30 xl:hidden"
-            onClick={() => setShowSidebar(false)}
-          />
-        )}
+          gap-6
 
-        {/* Sidebar */}
+          h-[calc(100vh-170px)]
+        "
+      >
+        {/* ===========================
+            Mobile Overlay
+        =========================== */}
 
-        <aside
+        <AnimatePresence>
+
+          {showSidebar && (
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+
+              onClick={() => setShowSidebar(false)}
+
+              className="
+                fixed
+                inset-0
+
+                bg-black/40
+                backdrop-blur-sm
+
+                z-40
+
+                xl:hidden
+              "
+            />
+
+          )}
+
+        </AnimatePresence>
+
+        {/* ===========================
+            Sidebar
+        =========================== */}
+
+        <motion.aside
+
+          initial={{
+            x: -80,
+            opacity: 0,
+          }}
+
+          animate={{
+            x: 0,
+            opacity: 1,
+          }}
+
+          transition={{
+            duration: 0.35,
+          }}
+
           className={`
-            fixed xl:static
-            top-0 left-0
-            h-full xl:h-auto
-            w-[290px]
+            fixed
+            xl:static
+
+            top-0
+            left-0
+
+            h-full
+            xl:h-auto
+
+            w-[300px]
             xl:w-80
-            z-40
-            bg-white dark:bg-slate-800
-            border-r xl:border
-            border-slate-200 dark:border-slate-700
-            shadow-xl xl:shadow-lg
-            rounded-none xl:rounded-2xl
-            p-5
-            transition-transform duration-300
+
+            z-50
+
+            rounded-none
+            xl:rounded-3xl
+
+            border
+            border-white/30
+            dark:border-slate-700
+
+            bg-white/75
+            dark:bg-slate-900/75
+
+            backdrop-blur-2xl
+
+            shadow-2xl
+
+            transition-transform
+            duration-300
+
             ${showSidebar
               ? "translate-x-0"
               : "-translate-x-full xl:translate-x-0"
@@ -146,109 +405,278 @@ export default function Chat() {
           `}
         >
 
-          <div className="flex items-center justify-between mb-6">
-
-            <div className="flex items-center gap-2">
-
-              <MessageSquare size={20} />
-
-              <h2 className="font-semibold text-slate-900 dark:text-white">
-                Recent Chats
-              </h2>
-
-            </div>
-
-            <button
-              onClick={() => setShowSidebar(false)}
-              className="xl:hidden"
-            >
-              <X size={22} />
-            </button>
-
-          </div>
-
-          <div className="space-y-3">
-
-            {[
-              "Company Policies",
-              "Product Information",
-              "Support FAQs",
-            ].map((chat) => (
-
-              <button
-                key={chat}
-                className="
-                  w-full
-                  text-left
-                  rounded-xl
-                  p-4
-                  bg-slate-100
-                  dark:bg-slate-700
-                  hover:bg-slate-200
-                  dark:hover:bg-slate-600
-                  transition
-                "
-              >
-
-                <div className="font-medium text-slate-900 dark:text-white">
-                  {chat}
-                </div>
-
-                <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  Last accessed recently
-                </div>
-
-              </button>
-
-            ))}
-
-          </div>
-
-          <div className="mt-8 pt-5 border-t border-slate-200 dark:border-slate-700">
-
-            <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-
-              <Clock3 size={16} />
-
-              Chat History
-
-            </div>
-
-          </div>
-
-        </aside>
-
-        {/* Chat Area */}
-
-        <section
-          className="
-            flex-1
-            flex
-            flex-col
-            overflow-hidden
-            rounded-2xl
-            border
-            border-slate-200
-            dark:border-slate-700
-            bg-white
-            dark:bg-slate-800
-            shadow-lg
-          "
-        >
-
-          {/* Header */}
+          {/* Sidebar Header */}
 
           <div
             className="
               flex
               items-center
               justify-between
-              gap-4
-              px-5
-              py-4
+
+              p-6
+
               border-b
               border-slate-200
               dark:border-slate-700
+            "
+          >
+
+            <div className="flex items-center gap-3">
+
+              <div
+                className="
+                  h-11
+                  w-11
+
+                  rounded-2xl
+
+                  flex
+                  items-center
+                  justify-center
+
+                  bg-gradient-to-r
+                  from-blue-600
+                  to-indigo-600
+
+                  text-white
+                "
+              >
+                <MessageSquare size={22} />
+              </div>
+
+              <div>
+
+                <h2
+                  className="
+                    font-bold
+                    text-slate-900
+                    dark:text-white
+                  "
+                >
+                  Recent Chats
+                </h2>
+
+                <p
+                  className="
+                    text-xs
+                    text-slate-500
+                  "
+                >
+                  Conversation history
+                </p>
+
+              </div>
+
+            </div>
+
+            <button
+              onClick={() =>
+                setShowSidebar(false)
+              }
+              className="
+                xl:hidden
+
+                p-2
+
+                rounded-xl
+
+                hover:bg-slate-100
+                dark:hover:bg-slate-800
+
+                transition
+              "
+            >
+              <X size={20} />
+            </button>
+
+          </div>
+
+          {/* Chat List */}
+
+          <div
+            className="
+              flex-1
+
+              overflow-y-auto
+
+              p-5
+
+              space-y-3
+            "
+          >
+
+            {[
+              "Company Policies",
+              "Product Information",
+              "Support FAQs",
+              "HR Guidelines",
+              "Technical Support",
+            ].map((chat, index) => (
+
+              <motion.button
+
+                key={chat}
+
+                whileHover={{
+                  x: 4,
+                }}
+
+                whileTap={{
+                  scale: 0.98,
+                }}
+
+                className="
+                  w-full
+
+                  text-left
+
+                  rounded-2xl
+
+                  border
+                  border-transparent
+
+                  bg-white/60
+                  dark:bg-slate-800/70
+
+                  hover:border-blue-300
+                  dark:hover:border-blue-700
+
+                  hover:bg-blue-50
+                  dark:hover:bg-slate-700
+
+                  p-4
+
+                  transition-all
+                "
+              >
+
+                <div
+                  className="
+                    font-semibold
+                    text-slate-900
+                    dark:text-white
+                  "
+                >
+                  {chat}
+                </div>
+
+                <div
+                  className="
+                    mt-1
+
+                    text-xs
+
+                    text-slate-500
+                    dark:text-slate-400
+                  "
+                >
+                  Conversation #{index + 1}
+                </div>
+
+              </motion.button>
+
+            ))}
+
+          </div>
+
+          {/* Footer */}
+
+          <div
+            className="
+              border-t
+              border-slate-200
+              dark:border-slate-700
+
+              p-5
+            "
+          >
+
+            <div
+              className="
+                flex
+                items-center
+                gap-2
+
+                text-sm
+
+                text-slate-500
+                dark:text-slate-400
+              "
+            >
+
+              <Clock3 size={16} />
+
+              Chat history is saved locally.
+
+            </div>
+
+          </div>
+
+        </motion.aside>
+
+        {/* ===========================
+            MAIN CHAT AREA
+        =========================== */}
+
+        <motion.section
+
+          initial={{
+            opacity: 0,
+            y: 20,
+          }}
+
+          animate={{
+            opacity: 1,
+            y: 0,
+          }}
+
+          transition={{
+            duration: 0.4,
+          }}
+
+          className="
+            flex-1
+
+            flex
+            flex-col
+
+            overflow-hidden
+
+            rounded-3xl
+
+            border
+            border-white/30
+            dark:border-slate-700
+
+            bg-white/70
+            dark:bg-slate-900/70
+
+            backdrop-blur-2xl
+
+            shadow-2xl
+          "
+        >
+          {/* ===========================
+              CHAT HEADER
+          =========================== */}
+
+          <div
+            className="
+              flex
+              items-center
+              justify-between
+
+              px-5
+              py-4
+
+              border-b
+              border-slate-200
+              dark:border-slate-700
+
+              bg-white/50
+              dark:bg-slate-900/40
+
+              backdrop-blur-xl
             "
           >
 
@@ -256,29 +684,96 @@ export default function Chat() {
 
               <button
                 onClick={() => setShowSidebar(true)}
-                className="xl:hidden"
+                className="
+                  xl:hidden
+
+                  p-2
+
+                  rounded-xl
+
+                  hover:bg-slate-200
+                  dark:hover:bg-slate-700
+
+                  transition
+                "
               >
                 <Menu size={22} />
               </button>
 
-              <div className="w-14 h-14 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+              <div
+                className="
+                  h-14
+                  w-14
 
-                <Bot
-                  size={28}
-                  className="text-blue-600"
-                />
+                  rounded-2xl
+
+                  flex
+                  items-center
+                  justify-center
+
+                  bg-gradient-to-r
+                  from-blue-600
+                  via-indigo-600
+                  to-purple-600
+
+                  text-white
+
+                  shadow-lg
+                "
+              >
+
+                <Bot size={28} />
 
               </div>
 
               <div>
 
-                <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+                <h2
+                  className="
+                    text-xl
+                    font-bold
+
+                    text-slate-900
+                    dark:text-white
+                  "
+                >
                   AI Assistant
                 </h2>
 
-                <p className="text-green-600 text-sm">
-                  ● Online
-                </p>
+                <div
+                  className="
+                    flex
+                    items-center
+                    gap-2
+
+                    mt-1
+                  "
+                >
+
+                  <span
+                    className="
+                      h-2.5
+                      w-2.5
+
+                      rounded-full
+
+                      bg-green-500
+
+                      animate-pulse
+                    "
+                  />
+
+                  <span
+                    className="
+                      text-sm
+                      text-green-600
+                      dark:text-green-400
+                    "
+                  >
+                    Online
+                  </span>
+
+                </div>
 
               </div>
 
@@ -290,13 +785,21 @@ export default function Chat() {
                 flex
                 items-center
                 gap-2
+
                 rounded-xl
+
                 bg-red-500
                 hover:bg-red-600
+
                 text-white
+
                 px-5
                 py-3
-                transition
+
+                transition-all
+                duration-200
+
+                hover:scale-105
               "
             >
 
@@ -309,73 +812,123 @@ export default function Chat() {
             </button>
 
           </div>
-          {/* Suggested Questions */}
 
-          <div
-            className="
-              border-b
-              border-slate-200
-              dark:border-slate-700
+          {/* ===========================
+              Suggested Questions
+          =========================== */}
 
-              px-5
-              py-4
+          <AnimatePresence>
 
-              bg-slate-50
-              dark:bg-slate-900/40
-            "
-          >
+            {showSuggestions && (
 
-            <div
-              className="
-                flex
-                gap-3
-                overflow-x-auto
-                scrollbar-hide
-                pb-1
-              "
-            >
+              <motion.div
 
-              {suggestions.map((item, index) => (
+                initial={{
+                  opacity: 0,
+                  height: 0,
+                }}
 
-                <button
-                  key={index}
-                  onClick={() => setInput(item)}
+                animate={{
+                  opacity: 1,
+                  height: "auto",
+                }}
+
+                exit={{
+                  opacity: 0,
+                  height: 0,
+                }}
+
+                transition={{
+                  duration: 0.25,
+                }}
+
+                className="
+                  overflow-hidden
+
+                  border-b
+                  border-slate-200
+                  dark:border-slate-700
+
+                  bg-slate-50/70
+                  dark:bg-slate-900/30
+                "
+              >
+
+                <div
                   className="
-                    flex-shrink-0
+                    flex
 
-                    rounded-full
+                    gap-3
 
-                    border
-                    border-slate-200
-                    dark:border-slate-700
+                    overflow-x-auto
 
-                    bg-white
-                    dark:bg-slate-800
+                    px-5
+                    py-4
 
-                    hover:bg-blue-50
-                    dark:hover:bg-slate-700
-
-                    px-4
-                    py-2.5
-
-                    text-sm
-
-                    whitespace-nowrap
-
-                    transition-all
-                    duration-200
+                    scrollbar-hide
                   "
                 >
-                  {item}
-                </button>
 
-              ))}
+                  {suggestions.map((item) => (
 
-            </div>
+                    <motion.button
 
-          </div>
+                      key={item}
 
-          {/* Messages */}
+                      whileHover={{
+                        y: -2,
+                        scale: 1.03,
+                      }}
+
+                      whileTap={{
+                        scale: 0.98,
+                      }}
+
+                      onClick={() => setInput(item)}
+
+                      className="
+                        flex-shrink-0
+
+                        rounded-full
+
+                        border
+                        border-slate-200
+                        dark:border-slate-700
+
+                        bg-white
+                        dark:bg-slate-800
+
+                        px-4
+                        py-2.5
+
+                        text-sm
+
+                        whitespace-nowrap
+
+                        hover:bg-blue-50
+                        dark:hover:bg-slate-700
+
+                        transition-all
+                      "
+                    >
+
+                      {item}
+
+                    </motion.button>
+
+                  ))}
+
+                </div>
+
+              </motion.div>
+
+            )}
+
+          </AnimatePresence>
+
+          {/* ===========================
+              MESSAGES AREA
+          =========================== */}
 
           <div
             className="
@@ -383,23 +936,36 @@ export default function Chat() {
 
               overflow-y-auto
 
-              bg-slate-50
-              dark:bg-slate-900
-
-              px-4
-              sm:px-6
-
+              px-5
               py-6
+
+              bg-gradient-to-b
+              from-slate-50
+              via-white
+              to-slate-50
+
+              dark:from-slate-950
+              dark:via-slate-900
+              dark:to-slate-950
 
               space-y-6
             "
           >
-
             {messages.map((msg, index) => (
 
-              <div
+              <motion.div
                 key={index}
-                className="animate-fade-in"
+                initial={{
+                  opacity: 0,
+                  y: 20,
+                }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                }}
+                transition={{
+                  duration: 0.25,
+                }}
               >
 
                 <ChatBubble
@@ -407,46 +973,190 @@ export default function Chat() {
                   message={msg.message}
                 />
 
-              </div>
+              </motion.div>
 
             ))}
 
-            {loading && <TypingIndicator />}
+            {loading && (
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+              >
+
+                <TypingIndicator />
+
+              </motion.div>
+
+            )}
 
             <div ref={messagesEndRef} />
 
           </div>
 
-          {/* Input Section */}
+          {/* ======================================
+                  INPUT SECTION
+          ====================================== */}
 
           <div
             className="
+              sticky
+              bottom-0
+
               border-t
               border-slate-200
               dark:border-slate-700
 
-              bg-white
-              dark:bg-slate-800
+              bg-white/70
+              dark:bg-slate-900/70
 
-              p-4
-              sm:p-5
+              backdrop-blur-2xl
+
+              px-4
+              py-4
+
+              pb-[calc(env(safe-area-inset-bottom)+16px)]
             "
           >
 
+            {/* Input Box */}
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              className="hidden"
+              accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.webp"
+
+              onChange={(e) => {
+                if (e.target.files?.length) {
+                  setAttachedFile(e.target.files[0]);
+                }
+              }}
+            />
+
+            {attachedFile && (
+
+              <div
+                className="
+                mb-4
+
+                flex
+                items-center
+                justify-between
+
+                rounded-2xl
+
+                border
+                border-slate-200
+                dark:border-slate-700
+
+                bg-slate-50
+                dark:bg-slate-800
+
+                px-4
+                py-3
+
+                shadow-sm
+                "
+              >
+
+                <div className="flex items-center gap-3">
+
+                  <Paperclip
+                    size={18}
+                    className="text-blue-600"
+                  />
+
+                  <div>
+
+                    <p className="font-medium text-slate-900 dark:text-white">
+                      {attachedFile.name}
+                    </p>
+
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {(attachedFile.size / 1024).toFixed(1)} KB
+                    </p>
+
+                  </div>
+
+                </div>
+
+                <button
+                  onClick={() => setAttachedFile(null)}
+                  className="
+                  text-red-500
+                  hover:text-red-600
+                  text-sm
+                  font-medium
+                  transition
+                  "
+                >
+                  Remove
+                </button>
+
+              </div>
+
+            )}
             <div
               className="
                 flex
                 items-end
+
                 gap-3
+
+                rounded-3xl
+
+                border
+                border-slate-200
+                dark:border-slate-700
+
+                bg-white
+                dark:bg-slate-800
+
+                px-4
+                py-3
+
+                shadow-xl
               "
             >
 
+              {/* Attachment */}
+
+              <button
+                onClick={() => fileInputRef.current?.click()}
+
+                className="
+                h-11
+                w-11
+
+                rounded-xl
+
+                flex
+                items-center
+                justify-center
+
+                hover:bg-slate-100
+                dark:hover:bg-slate-700
+
+                transition
+                "
+              >
+
+                <Paperclip size={20} />
+
+              </button>
+
+              {/* Textarea */}
+
               <textarea
                 ref={textareaRef}
+
                 value={input}
+
                 onChange={(e) =>
                   setInput(e.target.value)
                 }
+
                 onKeyDown={(e) => {
                   if (
                     e.key === "Enter" &&
@@ -456,48 +1166,113 @@ export default function Chat() {
                     sendMessage();
                   }
                 }}
+
                 placeholder="Ask anything about your company..."
+
                 className="
                   flex-1
 
                   resize-none
 
-                  min-h-[58px]
+                  min-h-[26px]
                   max-h-[180px]
 
                   overflow-y-auto
 
-                  rounded-2xl
+                  bg-transparent
 
-                  border
-                  border-slate-300
-                  dark:border-slate-600
-
-                  bg-slate-50
-                  dark:bg-slate-700
-
-                  px-5
-                  py-4
+                  outline-none
 
                   text-slate-900
                   dark:text-white
 
                   placeholder:text-slate-400
-
-                  focus:outline-none
-                  focus:ring-2
-                  focus:ring-blue-500
-
-                  transition
                 "
               />
 
+              {/* Emoji */}
+
+              <div className="relative" ref={emojiRef}>
+
+                <button
+                  onClick={() =>
+                    setShowEmojiPicker((prev) => !prev)
+                  }
+                  className="
+                  h-11
+                  w-11
+                  rounded-xl
+                  flex
+                  items-center
+                  justify-center
+                  hover:bg-slate-100
+                  dark:hover:bg-slate-700
+                  transition
+                  "
+                >
+                  <Smile size={20} />
+                </button>
+
+                {showEmojiPicker && (
+                  <div
+                    className="
+                    absolute
+                    bottom-14
+                    left-0
+                    z-50
+                    "
+                  >
+                    <EmojiPicker
+                      onEmojiClick={(emojiData) => {
+                        setInput(
+                          (prev) => prev + emojiData.emoji
+                        );
+                      }}
+                    />
+                  </div>
+                )}
+
+              </div>
+
+              {/* Voice */}
+
               <button
-                onClick={sendMessage}
-                disabled={loading}
                 className="
-                  h-[58px]
-                  w-[58px]
+                  p-2.5
+
+                  rounded-xl
+
+                  hover:bg-slate-100
+                  dark:hover:bg-slate-700
+
+                  transition
+                "
+              >
+                <Mic
+                  size={20}
+                  className="text-slate-500"
+                />
+              </button>
+
+              {/* Send */}
+
+              <motion.button
+
+                whileHover={{
+                  scale: 1.05,
+                }}
+
+                whileTap={{
+                  scale: 0.95,
+                }}
+
+                onClick={sendMessage}
+
+                disabled={loading}
+
+                className="
+                  h-12
+                  w-12
 
                   rounded-2xl
 
@@ -505,32 +1280,30 @@ export default function Chat() {
                   items-center
                   justify-center
 
-                  bg-blue-600
-                  hover:bg-blue-700
-
-                  disabled:opacity-50
-                  disabled:cursor-not-allowed
+                  bg-gradient-to-r
+                  from-blue-600
+                  to-indigo-600
 
                   text-white
 
                   shadow-lg
 
-                  transition-all
-                  duration-200
-
-                  hover:scale-105
+                  disabled:opacity-50
+                  disabled:cursor-not-allowed
                 "
               >
 
                 <Send size={20} />
 
-              </button>
+              </motion.button>
 
             </div>
 
+            {/* Footer */}
+
             <div
               className="
-                mt-4
+                mt-3
 
                 flex
                 flex-col
@@ -548,7 +1321,7 @@ export default function Chat() {
             >
 
               <span>
-                Messages: {messages.length}
+                {messages.length} Messages
               </span>
 
               <span>
@@ -556,12 +1329,15 @@ export default function Chat() {
               </span>
 
             </div>
+
           </div>
 
-        </section>
+        </motion.section>
 
       </div>
 
     </MainLayout>
+
   );
+
 }
