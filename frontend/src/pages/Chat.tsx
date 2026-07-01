@@ -282,13 +282,15 @@ export default function Chat() {
 
       <div
         className="
-          relative
+        relative
+        flex
+        gap-6
 
-          flex
+        w-full
 
-          gap-6
+        overflow-hidden
 
-          h-[calc(100vh-170px)]
+        h-[calc(100vh-170px)]
         "
       >
         {/* ===========================
@@ -345,7 +347,7 @@ export default function Chat() {
 
           className={`
             fixed
-            xl:static
+            xl:relative
 
             top-0
             left-0
@@ -356,7 +358,9 @@ export default function Chat() {
             w-[300px]
             xl:w-80
 
-            z-50
+            flex-shrink-0
+
+            z-50 xl:z-0
 
             rounded-none
             xl:rounded-3xl
@@ -613,7 +617,8 @@ export default function Chat() {
 
           className="
             flex-1
-
+            min-w-0
+            
             flex
             flex-col
 

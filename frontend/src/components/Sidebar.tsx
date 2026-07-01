@@ -447,7 +447,7 @@ export default function Sidebar({
                       : "text-slate-500"
                       }`}
                   >
-                    Frontend Developer
+                    Administrator
                   </p>
 
                 </div>
