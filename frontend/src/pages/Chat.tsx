@@ -224,29 +224,6 @@ export default function Chat() {
   };
 
   /* ===========================
-      handle file upload in attachment
-  =========================== */
-
-  const handleFileUpload = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = e.target.files?.[0];
-
-    if (!file) return;
-
-    setMessages((prev) => [
-      ...prev,
-      {
-        role: "user",
-        message: `📎 Uploaded: ${file.name}`,
-      },
-    ]);
-
-    console.log(file);
-
-    e.target.value = "";
-  };
-  /* ===========================
       Clear Chat
   =========================== */
 
