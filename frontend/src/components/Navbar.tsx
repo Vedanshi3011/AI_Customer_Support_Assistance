@@ -107,10 +107,9 @@ export default function Navbar({
         backdrop-blur-xl
         border-b
         transition-all duration-300
-        ${
-          darkMode
-            ? "bg-slate-900/95 border-slate-700"
-            : "bg-white/95 border-slate-200"
+        ${darkMode
+          ? "bg-slate-900/95 border-slate-700"
+          : "bg-white/95 border-slate-200"
         }
       `}
     >
@@ -133,10 +132,9 @@ export default function Navbar({
               p-2
               rounded-xl
               transition
-              ${
-                darkMode
-                  ? "hover:bg-slate-800"
-                  : "hover:bg-slate-100"
+              ${darkMode
+                ? "hover:bg-slate-800"
+                : "hover:bg-slate-100"
               }
             `}
           >
@@ -176,10 +174,9 @@ export default function Navbar({
                 focus:ring-2
                 focus:ring-blue-500
                 transition
-                ${
-                  darkMode
-                    ? "bg-slate-800 border-slate-700 text-white"
-                    : "bg-white border-slate-300 text-slate-900"
+                ${darkMode
+                  ? "bg-slate-800 border-slate-700 text-white"
+                  : "bg-white border-slate-300 text-slate-900"
                 }
               `}
             />
@@ -225,10 +222,9 @@ export default function Navbar({
             className={`
               hidden lg:block
               text-sm
-              ${
-                darkMode
-                  ? "text-slate-400"
-                  : "text-slate-500"
+              ${darkMode
+                ? "text-slate-400"
+                : "text-slate-500"
               }
             `}
           >
@@ -243,10 +239,9 @@ export default function Navbar({
               p-2.5
               rounded-xl
               transition
-              ${
-                darkMode
-                  ? "hover:bg-slate-800"
-                  : "hover:bg-slate-100"
+              ${darkMode
+                ? "hover:bg-slate-800"
+                : "hover:bg-slate-100"
               }
             `}
           >
@@ -260,7 +255,7 @@ export default function Navbar({
           {/* Notifications */}
 
           <div
-            className="relative"
+            className="relative flex-shrink-0"
             ref={notificationRef}
           >
             <button
@@ -274,10 +269,9 @@ export default function Navbar({
                 p-2.5
                 rounded-xl
                 transition
-                ${
-                  darkMode
-                    ? "hover:bg-slate-800"
-                    : "hover:bg-slate-100"
+                ${darkMode
+                  ? "hover:bg-slate-800"
+                  : "hover:bg-slate-100"
                 }
               `}
             >
@@ -302,32 +296,48 @@ export default function Navbar({
                 3
               </span>
             </button>
-                        {showNotifications && (
+            {showNotifications && (
               <div
                 className={`
-                  absolute
-                  right-0
-                  mt-3
-                  w-80
-                  rounded-2xl
-                  border
-                  shadow-2xl
-                  overflow-hidden
-                  z-50
-                  ${
-                    darkMode
-                      ? "bg-slate-800 border-slate-700"
-                      : "bg-white border-slate-200"
+                absolute
+                top-full
+                mt-3
+
+                right-0
+                sm:right-0
+
+                left-1/2
+                -translate-x-1/2
+                sm:left-auto
+                sm:translate-x-0
+
+                w-[calc(100vw-24px)]
+                max-w-[340px]
+                sm:w-80
+
+                rounded-2xl
+                border
+                shadow-2xl
+                overflow-hidden
+                max-h-[70vh]
+                overflow-y-auto
+
+                z-[999]
+
+                ${darkMode
+                    ? "bg-slate-800 border-slate-700"
+                    : "bg-white border-slate-200"
                   }
                 `}
               >
                 <div
                   className="
-                    px-5
-                    py-4
-                    font-semibold
-                    border-b
-                    dark:border-slate-700
+                  px-5
+                  py-4
+                  font-semibold
+                  border-b
+                  dark:border-slate-700
+                  text-lg
                   "
                 >
                   Notifications
@@ -337,14 +347,20 @@ export default function Navbar({
                   <button
                     key={index}
                     className="
-                      w-full
-                      text-left
-                      px-5
-                      py-4
-                      text-sm
-                      transition
-                      hover:bg-slate-100
-                      dark:hover:bg-slate-700
+                    w-full
+                    text-left
+
+                    px-5
+                    py-4
+
+                    text-sm
+
+                    break-words
+
+                    transition
+
+                    hover:bg-slate-100
+                    dark:hover:bg-slate-700
                     "
                   >
                     {item}
@@ -402,11 +418,10 @@ export default function Navbar({
 
               <div className="hidden md:block text-left">
                 <p
-                  className={`font-semibold ${
-                    darkMode
-                      ? "text-white"
-                      : "text-slate-800"
-                  }`}
+                  className={`font-semibold ${darkMode
+                    ? "text-white"
+                    : "text-slate-800"
+                    }`}
                 >
                   Admin User
                 </p>
@@ -421,10 +436,9 @@ export default function Navbar({
                 className={`
                   transition-transform
                   duration-300
-                  ${
-                    showMenu
-                      ? "rotate-180"
-                      : ""
+                  ${showMenu
+                    ? "rotate-180"
+                    : ""
                   }
                 `}
               />
@@ -442,14 +456,13 @@ export default function Navbar({
                   shadow-2xl
                   overflow-hidden
                   z-50
-                  ${
-                    darkMode
-                      ? "bg-slate-800 border-slate-700"
-                      : "bg-white border-slate-200"
+                  ${darkMode
+                    ? "bg-slate-800 border-slate-700"
+                    : "bg-white border-slate-200"
                   }
                 `}
               >
-                                <button
+                <button
                   onClick={() => {
                     navigate("/profile");
                     setShowMenu(false);
