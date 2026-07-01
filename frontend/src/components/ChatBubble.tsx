@@ -1,96 +1,186 @@
 import { User, Bot } from "lucide-react";
 
 interface ChatBubbleProps {
-    role: string;
-    message: string;
+  role: string;
+  message: string;
 }
 
 export default function ChatBubble({
-    role,
-    message,
+  role,
+  message,
 }: ChatBubbleProps) {
-    const isUser = role === "user";
+  const isUser = role === "user";
 
-    return (
+  return (
+    <div
+      className={`flex w-full mb-8 ${
+        isUser ? "justify-end" : "justify-start"
+      }`}
+    >
+      <div
+        className={`
+          flex gap-3 items-end
+          ${
+            isUser
+              ? "flex-row-reverse"
+              : "flex-row"
+          }
+
+          max-w-[94%]
+          sm:max-w-[85%]
+          lg:max-w-[75%]
+        `}
+      >
+        {/* Avatar */}
+
         <div
-            className={`flex mb-6 ${
-                isUser ? "justify-end" : "justify-start"
-            }`}
+          className={`
+            h-11
+            w-11
+
+            rounded-2xl
+
+            flex
+            items-center
+            justify-center
+
+            shadow-lg
+
+            flex-shrink-0
+
+            ${
+              isUser
+                ? `
+                    bg-gradient-to-br
+                    from-blue-600
+                    to-indigo-600
+
+                    text-white
+                  `
+                : `
+                    bg-gradient-to-br
+                    from-slate-800
+                    to-slate-700
+
+                    dark:from-slate-700
+                    dark:to-slate-600
+
+                    text-white
+                  `
+            }
+          `}
         >
-            <div
-                className={`flex gap-3 max-w-[90%] md:max-w-[80%] ${
-                    isUser ? "flex-row-reverse" : ""
-                }`}
-            >
-                {/* Avatar */}
-                <div
-                    className={`
-                        w-10 h-10 rounded-full
-                        flex items-center justify-center
-                        shadow-md flex-shrink-0
-                        ${
-                            isUser
-                                ? "bg-blue-600 text-white"
-                                : "bg-slate-800 dark:bg-slate-700 text-white"
-                        }
-                    `}
-                >
-                    {isUser ? (
-                        <User size={18} />
-                    ) : (
-                        <Bot size={18} />
-                    )}
-                </div>
-
-                {/* Message Bubble */}
-                <div
-                    className={`
-                        px-5 py-4 rounded-2xl shadow-sm
-                        transition-colors duration-300
-                        ${
-                            isUser
-                                ? `
-                                    bg-blue-600
-                                    text-white
-                                    rounded-br-md
-                                  `
-                                : `
-                                    bg-white
-                                    dark:bg-slate-800
-                                    border border-slate-200 dark:border-slate-700
-                                    text-slate-800 dark:text-slate-100
-                                    rounded-bl-md
-                                  `
-                        }
-                    `}
-                >
-                    {/* Sender Label */}
-                    <div
-                        className={`
-                            text-xs font-semibold mb-2
-                            ${
-                                isUser
-                                    ? "text-blue-100"
-                                    : "text-slate-500 dark:text-slate-400"
-                            }
-                        `}
-                    >
-                        {isUser ? "You" : "AI Assistant"}
-                    </div>
-
-                    {/* Message Content */}
-                    <p
-                        className="
-                            leading-relaxed
-                            text-sm md:text-base
-                            whitespace-pre-wrap
-                            break-words
-                        "
-                    >
-                        {message}
-                    </p>
-                </div>
-            </div>
+          {isUser ? (
+            <User size={19} />
+          ) : (
+            <Bot size={19} />
+          )}
         </div>
-    );
+
+        {/* Bubble */}
+
+        <div
+          className={`
+            relative
+
+            rounded-3xl
+
+            px-5
+            py-4
+
+            shadow-md
+
+            transition-all
+            duration-300
+
+            ${
+              isUser
+                ? `
+                    bg-gradient-to-br
+                    from-blue-600
+                    to-indigo-600
+
+                    text-white
+
+                    rounded-br-lg
+                  `
+                : `
+                    bg-white
+                    dark:bg-slate-800
+
+                    border
+                    border-slate-200
+                    dark:border-slate-700
+
+                    text-slate-800
+                    dark:text-slate-100
+
+                    rounded-bl-lg
+                  `
+            }
+          `}
+        >
+          {/* Header */}
+
+          <div
+            className={`
+              flex
+              items-center
+              justify-between
+
+              mb-2
+            `}
+          >
+            <span
+              className={`
+                text-xs
+
+                font-semibold
+
+                tracking-wide
+
+                ${
+                  isUser
+                    ? "text-blue-100"
+                    : "text-slate-500 dark:text-slate-400"
+                }
+              `}
+            >
+              {isUser ? "You" : "AI Assistant"}
+            </span>
+
+            <span
+              className={`
+                text-[10px]
+
+                ${
+                  isUser
+                    ? "text-blue-200"
+                    : "text-slate-400"
+                }
+              `}
+            >
+              Just now
+            </span>
+          </div>
+
+          {/* Message */}
+
+          <p
+            className="
+              whitespace-pre-wrap
+              break-words
+
+              leading-7
+
+              text-[15px]
+              sm:text-base
+            "
+          >
+            {message}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
 }

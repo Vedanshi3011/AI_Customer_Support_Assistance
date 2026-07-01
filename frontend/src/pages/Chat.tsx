@@ -10,6 +10,8 @@ import {
   Send,
   Bot,
   Clock3,
+  Menu,
+  X,
 } from "lucide-react";
 
 export default function Chat() {
@@ -24,17 +26,17 @@ export default function Chat() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [showSidebar, setShowSidebar] = useState(false);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  /* Auto Scroll */
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({
       behavior: "smooth",
     });
   }, [messages, loading]);
 
-  /* Auto Expand Textarea */
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
@@ -42,6 +44,13 @@ export default function Chat() {
         textareaRef.current.scrollHeight + "px";
     }
   }, [input]);
+
+  const suggestions = [
+    "What is the company refund policy?",
+    "How do I reset my password?",
+    "Explain the onboarding process",
+    "Where can I contact support?",
+  ];
 
   const sendMessage = () => {
     if (!input.trim() || loading) return;
@@ -83,78 +92,78 @@ export default function Chat() {
     ]);
   };
 
-  const suggestions = [
-    "What is the company refund policy?",
-    "How do I reset my password?",
-    "Explain the onboarding process",
-    "Where can I contact support?",
-  ];
-
   return (
     <MainLayout>
-      {/* Header */}
-      <div className="mb-6">
-        <h1
-          className="
-            text-2xl
-            sm:text-3xl
-            lg:text-4xl
-            font-bold
-            text-slate-900
-            dark:text-white
-          "
-        >
+
+      {/* Page Header */}
+
+      <div className="mb-5">
+
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
           AI Customer Support Chat
         </h1>
 
-        <p
-          className="
-            mt-2
-            text-sm
-            sm:text-base
-            text-slate-500
-            dark:text-slate-400
-          "
-        >
-          Interact with the AI assistant powered by RAG and company knowledge.
+        <p className="mt-2 text-slate-500 dark:text-slate-400">
+          Chat with your AI assistant powered by Retrieval-Augmented Generation.
         </p>
+
       </div>
 
-      {/* Responsive Layout */}
-      <div
-        className="
-          grid
-          grid-cols-1
-          xl:grid-cols-4
-          gap-6
-        "
-      >
-        {/* ========================= */}
-        {/* Recent Chats Sidebar */}
-        {/* ========================= */}
+      {/* Main Layout */}
 
-        <div
-          className="
-            xl:col-span-1
-            bg-white
-            dark:bg-slate-800
-            border
-            border-slate-200
-            dark:border-slate-700
-            rounded-2xl
-            shadow-lg
+      <div className="relative flex gap-6 h-[calc(100vh-170px)]">
+
+        {/* Mobile Overlay */}
+
+        {showSidebar && (
+          <div
+            className="fixed inset-0 bg-black/40 z-30 xl:hidden"
+            onClick={() => setShowSidebar(false)}
+          />
+        )}
+
+        {/* Sidebar */}
+
+        <aside
+          className={`
+            fixed xl:static
+            top-0 left-0
+            h-full xl:h-auto
+            w-[290px]
+            xl:w-80
+            z-40
+            bg-white dark:bg-slate-800
+            border-r xl:border
+            border-slate-200 dark:border-slate-700
+            shadow-xl xl:shadow-lg
+            rounded-none xl:rounded-2xl
             p-5
-            h-fit
-          "
+            transition-transform duration-300
+            ${showSidebar
+              ? "translate-x-0"
+              : "-translate-x-full xl:translate-x-0"
+            }
+          `}
         >
 
-          <div className="flex items-center gap-2 mb-5">
+          <div className="flex items-center justify-between mb-6">
 
-            <MessageSquare size={20} />
+            <div className="flex items-center gap-2">
 
-            <h2 className="font-semibold text-slate-900 dark:text-white">
-              Recent Chats
-            </h2>
+              <MessageSquare size={20} />
+
+              <h2 className="font-semibold text-slate-900 dark:text-white">
+                Recent Chats
+              </h2>
+
+            </div>
+
+            <button
+              onClick={() => setShowSidebar(false)}
+              className="xl:hidden"
+            >
+              <X size={22} />
+            </button>
 
           </div>
 
@@ -164,29 +173,24 @@ export default function Chat() {
               "Company Policies",
               "Product Information",
               "Support FAQs",
-            ].map((chat, index) => (
+            ].map((chat) => (
 
               <button
-                key={index}
+                key={chat}
                 className="
                   w-full
                   text-left
-
-                  p-3
-
                   rounded-xl
-
+                  p-4
                   bg-slate-100
                   dark:bg-slate-700
-
                   hover:bg-slate-200
                   dark:hover:bg-slate-600
-
-                  transition-all
+                  transition
                 "
               >
 
-                <div className="font-medium text-slate-800 dark:text-white">
+                <div className="font-medium text-slate-900 dark:text-white">
                   {chat}
                 </div>
 
@@ -200,9 +204,9 @@ export default function Chat() {
 
           </div>
 
-          <div className="mt-6 pt-5 border-t border-slate-200 dark:border-slate-700">
+          <div className="mt-8 pt-5 border-t border-slate-200 dark:border-slate-700">
 
-            <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+            <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
 
               <Clock3 size={16} />
 
@@ -212,76 +216,55 @@ export default function Chat() {
 
           </div>
 
-        </div>
+        </aside>
 
-        {/* ========================= */}
-        {/* Main Chat */}
-        {/* ========================= */}
+        {/* Chat Area */}
 
-        <div
+        <section
           className="
-            xl:col-span-3
-
-            bg-white
-            dark:bg-slate-800
-
+            flex-1
+            flex
+            flex-col
+            overflow-hidden
+            rounded-2xl
             border
             border-slate-200
             dark:border-slate-700
-
-            rounded-2xl
+            bg-white
+            dark:bg-slate-800
             shadow-lg
-
-            overflow-hidden
-
-            h-[75vh]
-            sm:h-[78vh]
-            xl:h-[82vh]
-
-            flex
-            flex-col
           "
         >
 
-          {/* Chat Header */}
+          {/* Header */}
 
           <div
             className="
+              flex
+              items-center
+              justify-between
+              gap-4
+              px-5
+              py-4
               border-b
               border-slate-200
               dark:border-slate-700
-
-              p-4
-              sm:p-5
-
-              flex
-              flex-col
-              sm:flex-row
-              sm:justify-between
-              sm:items-center
-
-              gap-4
             "
           >
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
 
-              <div
-                className="
-                  h-12
-                  w-12
-                  rounded-xl
-                  bg-blue-100
-                  dark:bg-blue-900/30
-
-                  flex
-                  items-center
-                  justify-center
-                "
+              <button
+                onClick={() => setShowSidebar(true)}
+                className="xl:hidden"
               >
+                <Menu size={22} />
+              </button>
+
+              <div className="w-14 h-14 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
 
                 <Bot
-                  size={26}
+                  size={28}
                   className="text-blue-600"
                 />
 
@@ -289,11 +272,11 @@ export default function Chat() {
 
               <div>
 
-                <h2 className="font-semibold text-lg text-slate-900 dark:text-white">
+                <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
                   AI Assistant
                 </h2>
 
-                <p className="text-sm text-green-600">
+                <p className="text-green-600 text-sm">
                   ● Online
                 </p>
 
@@ -306,32 +289,27 @@ export default function Chat() {
               className="
                 flex
                 items-center
-                justify-center
                 gap-2
-
+                rounded-xl
                 bg-red-500
                 hover:bg-red-600
-
                 text-white
-
-                px-4
-                py-2.5
-
-                rounded-xl
-
+                px-5
+                py-3
                 transition
               "
             >
 
-              <Trash2 size={16} />
+              <Trash2 size={18} />
 
-              Clear Chat
+              <span className="hidden sm:block">
+                Clear Chat
+              </span>
 
             </button>
 
           </div>
-
-          {/* Suggestions */}
+          {/* Suggested Questions */}
 
           <div
             className="
@@ -339,41 +317,61 @@ export default function Chat() {
               border-slate-200
               dark:border-slate-700
 
-              p-4
+              px-5
+              py-4
 
-              flex
-              flex-wrap
-
-              gap-2
+              bg-slate-50
+              dark:bg-slate-900/40
             "
           >
 
-            {suggestions.map((item, index) => (
+            <div
+              className="
+                flex
+                gap-3
+                overflow-x-auto
+                scrollbar-hide
+                pb-1
+              "
+            >
 
-              <button
-                key={index}
-                onClick={() => setInput(item)}
-                className="
-                  px-3
-                  py-2
+              {suggestions.map((item, index) => (
 
-                  rounded-lg
+                <button
+                  key={index}
+                  onClick={() => setInput(item)}
+                  className="
+                    flex-shrink-0
 
-                  text-sm
+                    rounded-full
 
-                  bg-slate-100
-                  dark:bg-slate-700
+                    border
+                    border-slate-200
+                    dark:border-slate-700
 
-                  hover:bg-slate-200
-                  dark:hover:bg-slate-600
+                    bg-white
+                    dark:bg-slate-800
 
-                  transition
-                "
-              >
-                {item}
-              </button>
+                    hover:bg-blue-50
+                    dark:hover:bg-slate-700
 
-            ))}
+                    px-4
+                    py-2.5
+
+                    text-sm
+
+                    whitespace-nowrap
+
+                    transition-all
+                    duration-200
+                  "
+                >
+                  {item}
+                </button>
+
+              ))}
+
+            </div>
 
           </div>
 
@@ -388,24 +386,38 @@ export default function Chat() {
               bg-slate-50
               dark:bg-slate-900
 
-              p-4
-              sm:p-6
+              px-4
+              sm:px-6
+
+              py-6
+
+              space-y-6
             "
           >
+
             {messages.map((msg, index) => (
-              <ChatBubble
+
+              <div
                 key={index}
-                role={msg.role}
-                message={msg.message}
-              />
+                className="animate-fade-in"
+              >
+
+                <ChatBubble
+                  role={msg.role}
+                  message={msg.message}
+                />
+
+              </div>
+
             ))}
 
             {loading && <TypingIndicator />}
 
             <div ref={messagesEndRef} />
+
           </div>
 
-          {/* Chat Input */}
+          {/* Input Section */}
 
           <div
             className="
@@ -421,7 +433,13 @@ export default function Chat() {
             "
           >
 
-            <div className="flex items-end gap-3">
+            <div
+              className="
+                flex
+                items-end
+                gap-3
+              "
+            >
 
               <textarea
                 ref={textareaRef}
@@ -438,33 +456,39 @@ export default function Chat() {
                     sendMessage();
                   }
                 }}
-                placeholder="Ask a question..."
+                placeholder="Ask anything about your company..."
                 className="
                   flex-1
 
-                  min-h-[60px]
+                  resize-none
+
+                  min-h-[58px]
                   max-h-[180px]
 
-                  resize-none
                   overflow-y-auto
 
-                  rounded-xl
+                  rounded-2xl
 
                   border
                   border-slate-300
                   dark:border-slate-600
 
-                  bg-white
+                  bg-slate-50
                   dark:bg-slate-700
+
+                  px-5
+                  py-4
 
                   text-slate-900
                   dark:text-white
 
-                  p-3
+                  placeholder:text-slate-400
 
                   focus:outline-none
                   focus:ring-2
                   focus:ring-blue-500
+
+                  transition
                 "
               />
 
@@ -472,12 +496,14 @@ export default function Chat() {
                 onClick={sendMessage}
                 disabled={loading}
                 className="
+                  h-[58px]
+                  w-[58px]
+
+                  rounded-2xl
+
                   flex
                   items-center
                   justify-center
-                  gap-2
-
-                  rounded-xl
 
                   bg-blue-600
                   hover:bg-blue-700
@@ -487,22 +513,16 @@ export default function Chat() {
 
                   text-white
 
-                  px-5
-                  sm:px-6
+                  shadow-lg
 
-                  h-[60px]
+                  transition-all
+                  duration-200
 
-                  transition
+                  hover:scale-105
                 "
               >
 
-                <Send size={18} />
-
-                <span className="hidden sm:inline">
-                  {loading
-                    ? "Sending..."
-                    : "Send"}
-                </span>
+                <Send size={20} />
 
               </button>
 
@@ -510,15 +530,15 @@ export default function Chat() {
 
             <div
               className="
-                mt-3
+                mt-4
 
                 flex
                 flex-col
                 sm:flex-row
 
-                gap-2
+                justify-between
 
-                sm:justify-between
+                gap-2
 
                 text-xs
 
@@ -536,13 +556,12 @@ export default function Chat() {
               </span>
 
             </div>
-
           </div>
 
-        </div>
+        </section>
 
       </div>
-      
+
     </MainLayout>
   );
 }
